@@ -80,5 +80,6 @@
       - /tmp/RHEL/Install/snluserinput.properties.template
  
   - name: Launch installation
-    shell: snl_install
+    script:
+      cmd: /tmp/RHEL/Install/snl_install
     
