@@ -1,0 +1,84 @@
+
+---
+- name: Install SNL
+  hosts: test
+  become: yes
+
+  tasks:
+  - name: install ksh
+    yum:
+      name: ksh
+      state: latest
+
+  - name: create group
+    group:
+      name: sagsnlg
+      state: present
+
+  - name: create user and add group
+    user:
+      name: swnet
+      shell: /bin/ksh
+      home: /home/swnet
+      state: present
+      password: Abcd1234
+      groups: sagsnlg
+      append: yes
+
+  - name: Copy limits.conf file
+    copy:
+        src: /home/ansible/limits.conf
+        dest: /etc/security/
+
+  - name: Set some kernel parameters
+    lineinfile:
+      dest: /etc/sysctl.conf
+      line: "{{ item }}"
+    with_items:
+       - kernel.msgmni=256
+       - kernel.msgmnb=10485760
+       - net.ipv4.ip_local_port_range=50000 65335
+
+  - name: Configure the DNS and Name Server
+    copy:
+      src: "{{ item }}"
+      dest: /var/named/
+    with_items:
+      - /tmp/RHEL/DnsConfig/127.0.0.zone
+      - /tmp/RHEL/DnsConfig/localhost.zone
+  
+  - name: Copy file
+    copy:
+      src: /tmp/RHEL/DnsConfig/named.conf
+      dest: /etc/named.conf
+  
+  - name: create an empty file
+    file:
+      name: root.hint
+      dest: /var/named/
+      state: touch
+  
+#  - name: start named service
+#    service:
+#      name: named
+#      state: started
+#      enabled: yes
+
+  - name:  Edit the file /etc/resolv.conf
+    lineinfile:
+      path: /etc/resolv.conf
+      line: 'nameserver 127.0.0.1'
+      regexp: "nameserver *"
+
+  - name: copy installation files
+    copy:
+      src: "{{ item }}"
+      dest: /tmp
+      mode: 0751
+    with_items:
+      - /tmp/RHEL/Install/snl_install
+      - /tmp/RHEL/Install/snluserinput.properties.template
+ 
+  - name: Launch installation
+    shell: snl_install
+    
