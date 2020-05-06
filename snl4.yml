@@ -5,10 +5,34 @@
   become: yes
 
   tasks:
-  - name: install ksh
-    yum:
-      name: ksh
+  - name: install software
+    package:
+      name: "{{ item }}"
       state: latest
+    with_items:       
+      - ksh 
+      - bc
+      - binutils
+      - compat-libcap1
+#      - compat-libstdc++
+      - glibc
+      - glibc-devel
+      - libaio
+      - libaio-devel
+      - libgcc
+      - libstdc++
+      - libstdc++-devel
+      - libxcb
+      - libX11
+      - libXau
+      - libXi
+      - libXtst
+      - libXrender
+      - libXrender-devel
+      - make
+      - net-tools
+      - smartmontools
+      - sysstat
 
   - name: create group
     group:
@@ -81,5 +105,6 @@
  
   - name: Launch installation
     script:
-      cmd: /tmp/RHEL/Install/snl_install
+      cmd: /tmp/RHEL/Install/snl_install -silent /tmp/snluserinput.properties.template
+    ignore: yes
     
