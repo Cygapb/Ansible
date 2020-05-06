@@ -106,5 +106,3 @@
   - name: Launch installation
     script:
       cmd: /tmp/RHEL/Install/snl_install -silent /tmp/snluserinput.properties.template
-    ignore: yes
-    
